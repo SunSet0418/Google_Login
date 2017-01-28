@@ -43,6 +43,10 @@ app.listen(3000, function(err){
   }
 })
 
+app.get('/', function(req, res){
+  res.send('login success')
+})
+
 app.post('/login', function(req,res){
   User.findOne({
     id : req.param('id'),
@@ -75,9 +79,66 @@ app.post('/login', function(req,res){
   })
 })
 
+app.post('/register', function(req, res){
+  var user = new User({
+    username : req.param('username'),
+    id : req.param('id'),
+    password : req.param('password')
+  })
+  User.findOne({
+    id : req.param('id')
+  }, function(err, result){
+    if(err){
+      console.log('/register Error!')
+      throw err
+    }
+    else if(result){
+      res.json({
+        success : false,
+        message : 'already added account'
+      })
+    }
+    else {
+      user.save(function(err){
+        if(err){
+          console.log("save Error")
+          throw err
+        }
+        else {
+          console.log(req.param('username')+" register success")
+          res.json({
+            success : true,
+            message : "account save success"
+          })
+        }
+      })
+    }
+  })
+})
+
+passport.serializeUser(function(user, done) {
+  console.log("serialize")
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+  console.log("deserialize")
+  done(null, user);
+});
+
+app.get('/auth/google',
+passport.authenticate('google', { scope: ['https://accounts.google.com/o/oauth2/v2/auth'] }));
+
+app.get('/auth/google/callback',
+passport.authenticate('google', { failureRedirect: '/' }),
+  function(req, res) {
+    res.redirect('/');
+  });
+
+
 passport.use(new GoogleStrategy({
-    clientID: "792084842572-fbpnkm8t090gdepboun2v92tp4co9rvc.apps.googleusercontent.com",
-    clientSecret: "UrlzGuabqD6Ev3IEHSScJnVi",
+    clientID: '792084842572-fbpnkm8t090gdepboun2v92tp4co9rvc.apps.googleusercontent.com',
+    clientSecret: 'UrlzGuabqD6Ev3IEHSScJnVi',
     callbackURL: "http://localhost:3000/auth/google/callback"
   },
   function(accessToken, refreshToken, profile, done) {
