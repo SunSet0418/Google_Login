@@ -1,0 +1,26 @@
+{
+  "name": "google_login",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SunSet0418/Google_Login.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SunSet0418/Google_Login/issues"
+  },
+  "homepage": "https://github.com/SunSet0418/Google_Login#readme",
+  "dependencies": {
+    "body-parser": "^1.16.0",
+    "express": "^4.14.0",
+    "mongoose": "^4.7.9",
+    "passport": "^0.3.2",
+    "passport-google-oauth": "^1.0.0"
+  }
+}
