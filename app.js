@@ -50,25 +50,18 @@ app.get('/', function(req, res){
 app.post('/login', function(req,res){
   User.findOne({
     id : req.param('id'),
+    password: req.param('password')
   }, function(err, result){
     if(err){
       console.log("/login Error!")
       throw err
     }
-    else if(result){
-      if(result.password == req.param('password')){
+    if(result){
         console.log(result.username+" Login")
         res.json({
           success : true,
           message : "login success"
         })
-      }
-      else if(result.password != req.param('password')){
-        res.json({
-          success : false,
-          message : "login failed"
-        })
-      }
     }
     else {
       res.json({
@@ -144,7 +137,6 @@ passport.use(new GoogleStrategy({
     profileFields: ['email','gender','name']
   },
   function(accessToken, refreshToken, profile, done) {
-    console.log(profile)
-    console.log(profile.__json)
+    console.log(profile._json.emails.value)
   }
 ));
