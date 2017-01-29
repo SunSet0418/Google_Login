@@ -127,23 +127,24 @@ passport.deserializeUser(function(user, done) {
 });
 
 app.get('/auth/google',
-passport.authenticate('google', { scope: ['https://accounts.google.com/o/oauth2/v2/auth'] }));
+passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/userinfo.email'/*,'https://www.googleapis.com/auth/userinfo.profile'*/] }));
 
-app.get('/auth/google/callback',
-passport.authenticate('google', { failureRedirect: '/' }),
-  function(req, res) {
-    res.redirect('/');
-  });
+app.get('/auth/google/callback', //로그인후에 성공, 실패 여부에 따른 리다이렉션(링크이동)
+passport.authenticate('google',
+{
+  successRedirect: '/',
+  failureRedirect: '/'
+}));
 
 
 passport.use(new GoogleStrategy({
     clientID: '792084842572-fbpnkm8t090gdepboun2v92tp4co9rvc.apps.googleusercontent.com',
     clientSecret: 'UrlzGuabqD6Ev3IEHSScJnVi',
-    callbackURL: "http://localhost:3000/auth/google/callback"
+    callbackURL: "http://localhost:3000/auth/google/callback",
+    profileFields: ['email','gender','name']
   },
   function(accessToken, refreshToken, profile, done) {
-       User.findOrCreate({ googleId: profile.id }, function (err, user) {
-         return done(err, user);
-       });
+    console.log(profile)
+    console.log(profile.__json)
   }
 ));
