@@ -9,6 +9,8 @@ var app = express();
 app.use(bodyParser.urlencoded({
   extended : true
 }))
+app.use(passport.initialize());
+app.use(passport.session());
 
 mongoose.connect("mongodb://localhost/googlelogin", function(err){
   if(err){
@@ -119,17 +121,6 @@ passport.deserializeUser(function(user, done) {
   done(null, user);
 });
 
-app.get('/auth/google',
-passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/userinfo.email'/*,'https://www.googleapis.com/auth/userinfo.profile'*/] }));
-
-app.get('/auth/google/callback', //로그인후에 성공, 실패 여부에 따른 리다이렉션(링크이동)
-passport.authenticate('google',
-{
-  successRedirect: '/',
-  failureRedirect: '/'
-}));
-
-
 passport.use(new GoogleStrategy({
     clientID: '792084842572-fbpnkm8t090gdepboun2v92tp4co9rvc.apps.googleusercontent.com',
     clientSecret: 'UrlzGuabqD6Ev3IEHSScJnVi',
@@ -137,6 +128,46 @@ passport.use(new GoogleStrategy({
     profileFields: ['email','gender','name']
   },
   function(accessToken, refreshToken, profile, done) {
-    console.log(profile._json.emails.value)
+    console.log(profile)
+    console.log(profile._json.emails[0].value)
+    console.log(profile.displayName)
+    var user = new User({
+      username : profile.displayName,
+      id : profile._json.emails[0].value,
+      password : 0
+    })
+    User.findOne({
+      id : profile._json.emails[0].value
+    }, function(err, result){
+      if(err){
+        console.log('/register Error!')
+        throw err
+      }
+      else if(result){
+        console.log(displayName+"already")
+        done(null, true)
+      }
+      else {
+        user.save(function(err){
+          if(err){
+            console.log("save Error")
+            throw err
+          }
+          else {
+            console.log(profile.displayName+" register success")
+            done(null, true)
+          }
+        })
+      }
+    })
   }
 ));
+
+app.get('/auth/google',
+passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/userinfo.email'/*,'https://www.googleapis.com/auth/userinfo.profile'*/] }));
+
+app.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  function(req, res) {
+    res.redirect('/');
+  });
