@@ -171,3 +171,5 @@ app.get('/auth/google/callback',
   function(req, res) {
     res.redirect('/');
   });
+
+//일시켜놓고 없어짐.....
