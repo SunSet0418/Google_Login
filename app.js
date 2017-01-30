@@ -215,9 +215,6 @@ passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/useri
 app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   function(req, res) {
-    req.session.username = profile.displayName
-    req.session.email = profile._json.emails[0].value
-    console.log('/callback '+ req.session.username)
     res.redirect('/gregister');
   });
 
