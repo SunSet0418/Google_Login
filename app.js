@@ -1,6 +1,9 @@
 var express = require('express')
+var session = require('express-session')
 var bodyParser = require('body-parser')
 var mongoose = require('mongoose')
+var ejs = require('ejs')
+var fs = require('fs')
 var passport = require('passport')
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var schema = mongoose.Schema;
@@ -9,6 +12,11 @@ var app = express();
 app.use(bodyParser.urlencoded({
   extended : true
 }))
+app.use(session({
+  secret:'@#@$MYSIGN#@$#$',
+  resave: false,
+  saveUninitialized:true
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -111,6 +119,44 @@ app.post('/register', function(req, res){
   })
 })
 
+app.get('/gregister', function(req, res){
+  fs.readFile('register.ejs', 'utf-8', function(err, data){
+    res.end(ejs.render(data, {
+      id : req.session.email,
+      username : req.session.username
+    }))
+  })
+})
+
+app.post('/gregister', function(req, res){
+  var body = req.body
+  User.findOne({
+    id : req.session.email
+  },function(err, result){
+    if(err){
+      console.log('/gregister Error!')
+      throw err
+    }
+    User.update({
+      username : result.username,
+      id : result.id,
+      password : body.password
+    }, function(err){
+      if(err){
+        console.log('update Error!')
+        throw err
+      }
+      else {
+        console.log(result.username+' update success!')
+        res.json({
+          success : true,
+          message : "Update Success!"
+        })
+      }
+    })
+  })
+})
+
 passport.serializeUser(function(user, done) {
   console.log("serialize")
   done(null, user);
@@ -169,7 +215,10 @@ passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/useri
 app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   function(req, res) {
-    res.redirect('/');
+    req.session.username = profile.displayName
+    req.session.email = profile._json.emails[0].value
+    console.log('/callback '+ req.session.username)
+    res.redirect('/gregister');
   });
 
 //일시켜놓고 없어짐.....

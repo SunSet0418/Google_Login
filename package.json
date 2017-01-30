@@ -18,7 +18,10 @@
   "homepage": "https://github.com/SunSet0418/Google_Login#readme",
   "dependencies": {
     "body-parser": "^1.16.0",
+    "ejs": "^2.5.5",
     "express": "^4.14.0",
+    "express-session": "^1.15.0",
+    "fs": "0.0.1-security",
     "mongoose": "^4.7.9",
     "passport": "^0.3.2",
     "passport-google-oauth": "^1.0.0"
